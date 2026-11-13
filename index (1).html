@@ -1,0 +1,2020 @@
+<!DOCTYPE html>
+<html lang="en"><head><script data-bard-client-injected="true">(function(firebaseConfig, initialAuthToken, appId) {
+        window.__firebase_config = firebaseConfig;
+        window.__initial_auth_token = initialAuthToken;
+        window.__app_id = appId;
+            })("\n{\n  \"apiKey\": \"AIzaSyCqyCcs2R2e7AegGjvFAwG98wlamtbHvZY\",\n  \"authDomain\": \"bard-frontend.firebaseapp.com\",\n  \"projectId\": \"bard-frontend\",\n  \"storageBucket\": \"bard-frontend.firebasestorage.app\",\n  \"messagingSenderId\": \"175205271074\",\n  \"appId\": \"1:175205271074:web:2b7bd4d34d33bf38e6ec7b\"\n}\n","eyJhbGciOiJSUzI1NiIsImtpZCI6IjExNjRiNzdiNDMzZDdhMDAyMWI4NjE4YjhjYTU3ZTMyZGI5MWUxMTMiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJmaXJlYmFzZS1hZG1pbnNkay1mYnN2Y0BiYXJkLWZyb250ZW5kLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwiYXVkIjoiaHR0cHM6Ly9pZGVudGl0eXRvb2xraXQuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmlkZW50aXR5LmlkZW50aXR5dG9vbGtpdC52MS5JZGVudGl0eVRvb2xraXQiLCJ1aWQiOiIwNTkwNTYxOTI3MTgzNzkxMTI5MCIsImlzcyI6ImZpcmViYXNlLWFkbWluc2RrLWZic3ZjQGJhcmQtZnJvbnRlbmQuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLCJjbGFpbXMiOnsiYXBwSWQiOiJjXzIyZWEyNjY4MTRmNDFmZmFfaW5kZXguaHRtbC0xIn0sImV4cCI6MTc5NDU1MTAzNywiaWF0IjoxNzk0NTQ3NDM3LCJhbGciOiJSUzI1NiJ9.Xh90--v_0GLK2eF4bxS5KRjSoANE1eOk6sXFpBgppuglG54pkhcUArGCjAY5-OEl-fYziMDUPGpJVDjf25_7Eszyb7dloER3FZU4Z0tji5dMmJ95e7xUx12xB0TwCdJUM8eL6OaCVSmKanjSo88ixEI1Ot4q69HFuvOw0ijeNU-tttiSBtdwAM5OFPyhzzi7Rl7gCDQ5RSn44I7yUhbh-WtqNLeBrBhTcuAcDqt2kg7LDBgJYhyAFVDKNQBsdzRdcvlTz_bRSH51bsCsjRFIPCUSODTbr0qkNOj4xDoC30_7Vb8e2jUYhVHuRXA4oBOkHFfrQToJwI2z1Gkc5U9tng","c_22ea266814f41ffa_index.html-1")</script><script data-bard-client-injected="true">
+  document.addEventListener('input', (event) => {
+    if (event.target && (event.target.isContentEditable || event.target.hasAttribute('contenteditable'))) {
+      const clonedDoc = document.cloneNode(true);
+      const injectedScripts = clonedDoc.querySelectorAll('[data-bard-client-injected="true"]');
+      injectedScripts.forEach(el => el.remove());
+      window.parent.postMessage({
+        type: 'inlineEdit',
+        html: '<!DOCTYPE html>\n' + clonedDoc.documentElement.outerHTML
+      }, '*');
+    }
+  });
+</script><script data-bard-client-injected="true">(function(){'use strict';window.addEventListener("message",a=>{a.data&&a.data.type==="SUPPLEMENTAL_DATA_UPDATE"&&window.dispatchEvent(new CustomEvent("supplementaldataupdate",{detail:a.data.data}))});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const SCROLL_KEYS = new Set([
+    'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+    ' ', 'Spacebar', 'PageUp', 'PageDown', 'Home', 'End',
+  ]);
+  const HORIZONTAL_KEYS = new Set(['ArrowLeft', 'ArrowRight']);
+
+  function isTextEntryTarget(target) {
+    if (!target) return false;
+    const tagName = target.tagName;
+    return tagName === 'INPUT' || tagName === 'TEXTAREA' ||
+        tagName === 'SELECT' || target.isContentEditable === true;
+  }
+
+  // An element absorbs the key only if it both overflows on the axis being
+  // scrolled and is configured to scroll on that axis. The cheap dimension
+  // test runs first because getComputedStyle forces a style recalc, and this
+  // runs on every keypress. Each axis is read from its own longhand: the
+  // 'overflow' shorthand serializes as two values when the axes differ, which
+  // is the common 'overflow-x: hidden; overflow-y: auto' pane.
+  function canScroll(node, horizontal) {
+    const overflows = horizontal ? node.scrollWidth > node.clientWidth
+                                 : node.scrollHeight > node.clientHeight;
+    if (!overflows) return false;
+    const style = window.getComputedStyle(node);
+    const overflow = horizontal ? style.overflowX : style.overflowY;
+    return overflow === 'auto' || overflow === 'scroll';
+  }
+
+  // Walks up from the event target so nested scrollers keep their behavior.
+  // <body> is included because pages that pin the root height make it the
+  // scroll container.
+  function hasScrollableAncestor(target, horizontal) {
+    let node = target;
+    while (node && node !== document.documentElement) {
+      if (canScroll(node, horizontal)) return true;
+      node = node.parentElement;
+    }
+    return false;
+  }
+
+  function rootCanScroll(horizontal) {
+    const scroller = document.scrollingElement || document.documentElement;
+    if (!scroller) return false;
+    // Tolerate a pixel of rounding so subpixel layouts do not look scrollable.
+    return horizontal ? scroller.scrollWidth > window.innerWidth + 1
+                      : scroller.scrollHeight > window.innerHeight + 1;
+  }
+
+  window.addEventListener('keydown', function(event) {
+    if (!SCROLL_KEYS.has(event.key)) return;
+    if (event.defaultPrevented) return;
+    // Alt and Meta turn arrows into browser history navigation, and Ctrl is
+    // reserved for shortcuts, so none of them are scroll intent.
+    if (event.altKey || event.metaKey || event.ctrlKey) return;
+
+    const target = event.target;
+    if (isTextEntryTarget(target)) return;
+
+    // Anything that can still absorb the scroll gets to keep it.
+    const horizontal = HORIZONTAL_KEYS.has(event.key);
+    if (rootCanScroll(horizontal)) return;
+    if (hasScrollableAncestor(target, horizontal)) return;
+
+    event.preventDefault();
+  }, {capture: true, passive: false});
+})();</script><script data-bard-client-injected="true">(function() {
+  // Ensure this script is executed only once
+  if (window.firebaseAuthBridgeScriptLoaded) {
+    return;
+  }
+  window.firebaseAuthBridgeScriptLoaded = true;
+
+  let nextTokenPromiseId = 0;
+
+  // Stores { resolve, reject } for ongoing token requests
+  const pendingTokenPromises = {};
+
+  // Listen for messages from the Host Application
+  window.addEventListener('message', function(event) {
+
+    const messageData = event.data;
+
+  if (messageData && messageData.type === 'RESOLVE_NEW_FIREBASE_TOKEN') {
+      const { success, token, error, promiseId } = messageData ?? {};
+      if (pendingTokenPromises[promiseId]) {
+        if (success) {
+          pendingTokenPromises[promiseId].resolve(token);
+        } else {
+          pendingTokenPromises[promiseId].reject(new Error(error || 'Token refresh failed from host.'));
+        }
+        delete pendingTokenPromises[promiseId];
+      }
+    }
+  });
+
+  // Expose a function for the Generated App to request a new Firebase token
+  window.requestNewFirebaseToken = function() {
+    const currentPromiseId = nextTokenPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingTokenPromises[currentPromiseId] = { resolve, reject };
+    });
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'REQUEST_NEW_FIREBASE_TOKEN',
+        promiseId: currentPromiseId
+      }, '*');
+    } else {
+      pendingTokenPromises[currentPromiseId].reject(new Error('No parent window to request token from.'));
+      delete pendingTokenPromises[currentPromiseId];
+    }
+    return promise;
+  };
+})();</script><script data-bard-client-injected="true">
+let realOriginalGetUserMedia = null;
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  realOriginalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+}
+
+(function() {
+  if (navigator.mediaDevices && navigator.mediaDevices.__proto__) {
+    try {
+      Object.defineProperty(navigator.mediaDevices.__proto__, 'getUserMedia', {
+        get: function() {
+          return undefined; // Or throw an error
+        },
+        configurable: false
+      });
+    } catch (error) {
+      console.error("Error defining prototype getter:", error);
+    }
+  }
+})();
+
+(function() {
+  const pendingMediaResolvers = {};
+  let nextMediaPromiseId = 0;
+
+  function requestMediaPermissions(constraints) {
+    const mediaPromiseId = nextMediaPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingMediaResolvers[mediaPromiseId] = (granted) => {
+        delete pendingMediaResolvers[mediaPromiseId];
+        resolve(granted);
+      };
+    });
+
+    window.parent.postMessage({
+      type: 'requestMediaPermission',
+      constraints: constraints,
+      promiseId: mediaPromiseId,
+    }, '*');
+
+    return promise;
+  }
+
+  let originalGetUserMedia = realOriginalGetUserMedia;
+
+  function interceptGetUserMedia() {
+    if (navigator.mediaDevices) {
+      Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
+        value: function(constraints) {
+          return requestMediaPermissions(constraints).then((granted) => {
+            if (granted) {
+              if (originalGetUserMedia) {
+                return originalGetUserMedia(constraints);
+              } else {
+                throw new Error("Original getUserMedia not available.");
+              }
+            } else {
+              throw new DOMException('Permission denied', 'NotAllowedError');
+            }
+          });
+        },
+        writable: false,
+        configurable: false
+      });
+    }
+  }
+
+  interceptGetUserMedia();
+
+  const observer = new MutationObserver(function(mutationsList, observer) {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'reconfigured' && mutation.name === 'getUserMedia' && mutation.object === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'attributes' && mutation.attributeName === 'getUserMedia' && mutation.target === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'childList' && mutation.addedNodes) {
+        mutation.addedNodes.forEach(node => {
+          if (node === navigator.mediaDevices) {
+            interceptGetUserMedia();
+          }
+        });
+      }
+    }
+  });
+
+  function interceptSpeechRecognition() {
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      return;
+    }
+
+    const OriginalSpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    const SpeechRecognitionWrapper = function(...args) {
+      const recognizer = new OriginalSpeechRecognition(...args);
+      const originalStart = recognizer.start.bind(recognizer);
+
+      recognizer.start = function() {
+        requestMediaPermissions({ audio: true }).then(granted => {
+          if (granted) {
+            originalStart();
+          } else {
+            const errorEvent = new SpeechRecognitionErrorEvent('error');
+            errorEvent.error = 'not-allowed'; // This is the standard error for permission denial.
+            recognizer.dispatchEvent(errorEvent);
+          }
+        });
+      };
+
+      return recognizer;
+    };
+
+    SpeechRecognitionWrapper.prototype = OriginalSpeechRecognition.prototype;
+    SpeechRecognitionWrapper.prototype.constructor = SpeechRecognitionWrapper;
+
+    if (window.SpeechRecognition) {
+      window.SpeechRecognition = SpeechRecognitionWrapper;
+    }
+    if (window.webkitSpeechRecognition) {
+      window.webkitSpeechRecognition = SpeechRecognitionWrapper;
+    }
+  }
+
+  interceptSpeechRecognition();
+
+  window.addEventListener('message', function(event) {
+    if (event.data) {
+      if (event.data.type === 'resolveMediaPermission') {
+        const { promiseId, granted } = event.data;
+        if (pendingMediaResolvers[promiseId]) {
+          pendingMediaResolvers[promiseId](granted);
+        }
+      }
+    }
+  });
+
+})();</script><script ws-interception-config="{&quot;parentOrigin&quot;:&quot;https://gemini.google.com&quot;,&quot;proxiedDomains&quot;:[]}" data-bard-client-injected="true">(function(){'use strict';var u=typeof Object.defineProperties=="function"?Object.defineProperty:function(b,d,e){if(b==Array.prototype||b==Object.prototype)return b;b[d]=e.value;return b};function v(b){b=["object"==typeof globalThis&&globalThis,b,"object"==typeof window&&window,"object"==typeof self&&self,"object"==typeof global&&global];for(var d=0;d<b.length;++d){var e=b[d];if(e&&e.Math==Math)return e}throw Error("Cannot find global object");}var w=v(this);
+function y(b,d){if(d)a:{var e=w;b=b.split(".");for(var h=0;h<b.length-1;h++){var k=b[h];if(!(k in e))break a;e=e[k]}b=b[b.length-1];h=e[b];d=d(h);d!=h&&d!=null&&u(e,b,{configurable:!0,writable:!0,value:d})}}function z(b){function d(h){return b.next(h)}function e(h){return b.throw(h)}return new Promise(function(h,k){function m(n){n.done?h(n.value):Promise.resolve(n.value).then(d,e).then(m,k)}m(b.next())})}y("globalThis",function(b){return b||w});/*
+
+ Copyright The Closure Library Authors.
+ SPDX-License-Identifier: Apache-2.0
+*/
+function A(b,d){function e(){}e.prototype=d.prototype;b.j=d.prototype;b.prototype=new e;b.prototype.constructor=b;b.h=function(h,k,m){for(var n=Array(arguments.length-2),p=2;p<arguments.length;p++)n[p-2]=arguments[p];return d.prototype[k].apply(h,n)}};function B(b,d,e="*"){function h(a){if(typeof a==="string")return F.encode(a).buffer;if(a instanceof ArrayBuffer)return a.slice(0);if(ArrayBuffer.isView(a))return a.buffer.slice(a.byteOffset,a.byteOffset+a.byteLength);throw Error("Invalid data type");}function k(a){a=h(a);var f={type:"send",data:new Uint8Array(a)},g;(g=r)==null||g.postMessage(f,[a])}function m(){if(!r)throw Error("Data port not captured yet.");r.onmessage=a=>{if(a.data.type==="message"){a=new MessageEvent("message",{data:G.decode(a.data.data)});
+let f;(f=c.onmessage)==null||f.call(c,a);c.dispatchEvent(a)}}}function n(){if(!t)throw Error("Control port not captured yet.");t.onmessage=a=>{switch(a.data.type){case "open":l=1;var f=new Event("open"),g;(g=c.onopen)==null||g.call(c,f);c.dispatchEvent(f);q.forEach(H=>{k(H)});q=[];break;case "close":g=a.data;l=3;g=new CloseEvent("close",{code:g.code,reason:g.reason,wasClean:g.wasClean});(f=c.onclose)==null||f.call(c,g);c.dispatchEvent(g);break;case "error":l=3;f=new Event("error");let x;(x=c.onerror)==
+null||x.call(c,f);c.dispatchEvent(f)}}}function p(a){return z(function*(){var f=new MessageChannel;t=f.port1;var g=new MessageChannel;r=g.port1;n();m();window.parent.postMessage({type:"websocket_open",portOrdering:["control","data"],url:b,protocols:a||[],connectionId:I},e,[f.port2,g.port2])}())}var c=Reflect.construct(EventTarget,[],new.target);c.CONNECTING=0;c.OPEN=1;c.CLOSING=2;c.CLOSED=3;c.url=b;c.binaryType="arraybuffer";c.protocol="";c.i="";var l=0,t=null,r=null,q=[],F=new TextEncoder,G=new TextDecoder;
+c.onopen=null;c.onmessage=null;c.onclose=null;c.onerror=null;Object.defineProperty(c,"readyState",{get:()=>l,enumerable:!0,configurable:!0});Object.defineProperty(c,"bufferedAmount",{get:()=>{var a=0;q.forEach(f=>{a+=typeof f==="string"?f.length:f.byteLength});return a},enumerable:!0,configurable:!0});var I=function(){var a;return((a=globalThis.crypto)==null?0:a.randomUUID)?globalThis.crypto.randomUUID():"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,f=>{var g=Math.random()*16|0;return(f===
+"x"?g:g&3|8).toString(16)})}();c.send=a=>{if(l===1)a instanceof Blob?a.arrayBuffer().then(f=>{k(f)}):k(a);else if(l===0)if(typeof a==="string")q.push(a);else if(a instanceof ArrayBuffer||ArrayBuffer.isView(a))q.push(h(a));else throw Error("Sending Blob is not supported before the connection is open.");else console.debug("WebSocket send called in CLOSING or CLOSED state; ignored.")};c.close=(a=1E3,f="")=>{if(l!==2&&l!==3){l=2;a={type:"close",code:a,reason:f,wasClean:a===1E3};var g;(g=t)==null||g.postMessage(a)}};
+Promise.resolve().then(()=>p(d));return c}A(B,EventTarget);var C=document.currentScript,D=C==null?void 0:C.getAttribute("ws-interception-config");if(!D)throw Error("WebSocket Interceptor: Missing ws-interception-config attribute in the script tag.");var E=JSON.parse(D);if(!E.parentOrigin||typeof E.parentOrigin!=="string")throw Error("WebSocket Interceptor: Invalid parentOrigin in ws-interception-config");
+(function(b){var d=Object.getOwnPropertyDescriptor(window,"WebSocket");if(!d||d.writable||d.configurable)d=Object.assign(function(e,h){try{let k=(new URL(e)).hostname;if(b.proxiedDomains.some(m=>k===m||k.endsWith(`.${m}`)))return new B(e,h,b.parentOrigin)}catch(k){throw window.parent.postMessage({type:"websocket_blocked",url:e,reason:"blocked_invalid_url"},b.parentOrigin),new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");}window.parent.postMessage({type:"websocket_blocked",
+url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");},{CONNECTING:0,OPEN:1,CLOSING:2,CLOSED:3}),Object.defineProperty(window,"WebSocket",{value:d,writable:!1,configurable:!1})})({proxiedDomains:E.proxiedDomains||[],parentOrigin:E.parentOrigin});}).call(this);
+</script><script data-bard-client-injected="true">((function(modelInformation) {
+  const originalFetch = window.fetch;
+  // TODO: b/421908508 - Move these out of the script and match all generative AI model calls.
+  let googleLlmBaseApiUrls = [
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':streamGenerateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageEditModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageTransformModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.ttsModelName + ':generateContent',
+  ];
+  modelInformation.deprecatedTextModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+    );
+  });
+  modelInformation.deprecatedImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predict',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predictLongRunning',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedGenerateImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedImageTransformModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+
+  const pendingFetchResolvers = {};
+  let nextPromiseId = 0;
+
+  function handleStringInput(input, optionsArgument) {
+    const actualUrl = input;
+    const fetchCallArgs = [actualUrl, optionsArgument];
+    const effectiveOptions = optionsArgument || {};
+    const bodyForApiKeyCheck = effectiveOptions.body;
+    const bodyForPostMessage = effectiveOptions.body;
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  function handleRequestInput(input, optionsArgument) {
+    const actualUrl = input.url;
+    const fetchCallArgs = [input, optionsArgument];
+    const effectiveOptions = { method: input.method, headers: new Headers(input.headers) };
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (optionsArgument) {
+      if (optionsArgument.method) effectiveOptions.method = optionsArgument.method;
+      if (optionsArgument.headers) effectiveOptions.headers = new Headers(optionsArgument.headers);
+      if ('body' in optionsArgument) {
+        bodyForApiKeyCheck = optionsArgument.body;
+        bodyForPostMessage = optionsArgument.body;
+      } else {
+        bodyForApiKeyCheck = undefined;
+        bodyForPostMessage = input.body;
+      }
+    } else {
+      bodyForApiKeyCheck = undefined;
+      bodyForPostMessage = input.body;
+    }
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  window.fetch = function(input, optionsArgument) {
+    let actualUrl;
+    let fetchCallArgs;
+    let effectiveOptions = {};
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (typeof input === 'string') {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleStringInput(input, optionsArgument));
+    } else if (input instanceof Request) {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleRequestInput(input, optionsArgument));
+    } else {
+      return originalFetch.apply(window, [input, optionsArgument]);
+    }
+
+    effectiveOptions.method = effectiveOptions.method || 'GET';
+    if (!effectiveOptions.headers) {
+      effectiveOptions.headers = new Headers();
+    }
+
+
+    if (typeof actualUrl === 'string' && googleLlmBaseApiUrls.some((url) => actualUrl.startsWith(url))) {
+      let apiKeyIsNull = true;
+
+      const regex = new RegExp("models/([^:]+)");
+      const modelNameMatch = actualUrl.match(regex);
+      const modelName = modelNameMatch ? modelNameMatch[1] : 'unspecified';
+
+
+      try {
+        const urlObject = new URL(actualUrl);  // Use URL object for robust parsing
+        const apiKeyParam = urlObject.searchParams.get('key');
+        if (apiKeyParam) {
+          apiKeyIsNull = false;
+        }
+      } catch (e) {
+        // Continue checks even if URL parsing fails
+      }
+
+      if (apiKeyIsNull && effectiveOptions.headers) {
+        const h = new Headers(effectiveOptions.headers);
+        const apiKeyHeaderValue = h.get('X-API-Key') || h.get('x-api-key');
+        if (apiKeyHeaderValue) {
+          apiKeyIsNull = false;
+          return originalFetch.apply(window, fetchCallArgs);
+        }
+      }
+
+      if (apiKeyIsNull && effectiveOptions.method && ['POST', 'PUT', 'PATCH'].includes(effectiveOptions.method.toUpperCase()) && typeof bodyForApiKeyCheck === 'string') {
+        try {
+          const bodyData = JSON.parse(bodyForApiKeyCheck);
+          if (bodyData && bodyData.apiKey) {
+            apiKeyIsNull = false;
+            return originalFetch.apply(window, fetchCallArgs);
+          }
+        } catch (e) {
+          // Ignore JSON parsing errors
+        }
+      }
+
+      if(apiKeyIsNull) {
+        const promiseId = nextPromiseId++;
+        const promise = new Promise((resolve) => {
+          pendingFetchResolvers[promiseId] = (resolvedResponse) => {
+            delete pendingFetchResolvers[promiseId];
+            resolve(resolvedResponse);
+          };
+        });
+
+        let serializedBodyForPostMessage;
+        if (typeof bodyForPostMessage === 'string' || bodyForPostMessage == null) {
+            serializedBodyForPostMessage = bodyForPostMessage;
+        } else if (bodyForPostMessage instanceof ReadableStream) {
+            serializedBodyForPostMessage = null;
+        } else {
+            try {
+                serializedBodyForPostMessage = JSON.stringify(bodyForPostMessage);
+            } catch (e) {
+                serializedBodyForPostMessage = null;
+            }
+        }
+
+        const messageOptions = {
+            method: effectiveOptions.method,
+            headers: Object.fromEntries(new Headers(effectiveOptions.headers).entries()),
+            body: serializedBodyForPostMessage
+        };
+
+        window.parent.postMessage({
+          type: 'requestFetch',
+          url: actualUrl,
+          modelName: modelName,
+          options: messageOptions,
+          promiseId: promiseId,
+        }, '*');
+
+        return promise;
+      }
+      return originalFetch.apply(window, fetchCallArgs);
+    }
+    return originalFetch.apply(window, fetchCallArgs);
+  };
+
+  window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'resolveFetch') {
+      const { promiseId, response } = event.data;
+      if (pendingFetchResolvers[promiseId]) {
+        try {
+          const reconstructedResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: new Headers(response.headers),
+          });
+          pendingFetchResolvers[promiseId](reconstructedResponse);
+        } catch (error) {
+          pendingFetchResolvers[promiseId](new Response(null, { status: 500, statusText: "Interceptor Response Reconstruction Error" }));
+        }
+      }
+    }
+  });
+
+}))({"textModelName":"gemini-3-flash-preview","imageModelName":"imagen-4.0-generate-001","imageEditModelName":"gemini-3.1-flash-image","imageTransformModelName":"gemini-3-pro-image","videoModelName":"veo-2.0-generate-001","ttsModelName":"gemini-2.5-flash-preview-tts","deprecatedTextModelNames":["gemini-2.0-flash","gemini-2.5-flash","gemini-2.5-flash-preview-04-17","gemini-2.5-flash-preview-05-20","gemini-2.5-flash-preview-09-2025"],"deprecatedImageModelNames":["imagen-3.0-generate-001","imagen-3.0-generate-002"],"deprecatedGenerateImageModelNames":["gemini-2.5-flash-image-preview","gemini-2.5-flash-image","gemini-3.1-flash-image-preview"],"deprecatedImageTransformModelNames":["gemini-3-pro-image-preview-11-2025"]})</script><script data-bard-client-injected="true">(function() {
+  function normalizeSlug(str) {
+    try {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^p{L}p{N}s_-]/gu, '')
+        .replace(/s+/g, '-');
+    } catch (e) {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9s_-]/g, '')
+        .replace(/s+/g, '-');
+    }
+  }
+
+  function findTargetElement(hash) {
+    if (!hash || hash === '#') {
+      return null;
+    }
+    const rawId = hash.startsWith('#') ? hash.slice(1) : hash;
+    let decodedId = rawId;
+    try {
+      decodedId = decodeURIComponent(rawId);
+    } catch (e) {
+      // Ignore URI malformed errors.
+    }
+
+    // 1. Direct ID match (raw and decoded).
+    let target = document.getElementById(rawId) || document.getElementById(decodedId);
+    if (target) {
+      return target;
+    }
+
+    // 2. Name attribute match (<a name="...">).
+    try {
+      if (typeof CSS !== 'undefined' && CSS.escape) {
+        target =
+          document.querySelector('[name="' + CSS.escape(rawId) + '"]') ||
+          document.querySelector('[name="' + CSS.escape(decodedId) + '"]');
+      } else {
+        const namedElements = document.getElementsByName(rawId);
+        if (namedElements && namedElements.length > 0) {
+          return namedElements[0];
+        }
+      }
+    } catch (e) {
+      // Ignore querySelector syntax errors.
+    }
+    if (target) {
+      return target;
+    }
+
+    // 3. Match heading text by slug (for Markdown TOCs where headings lack explicit IDs).
+    const targetSlug = normalizeSlug(decodedId);
+    if (targetSlug) {
+      for (const heading of document.querySelectorAll('h1, h2, h3, h4, h5, h6')) {
+        if (normalizeSlug(heading.textContent || '') === targetSlug) {
+          return heading;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  document.addEventListener('click', function(event) {
+    const target = event.target;
+    const anchor = target && typeof target.closest === 'function' ? target.closest('a') : null;
+    if (!anchor) {
+      return;
+    }
+
+    const href = anchor.getAttribute('href');
+    if (
+      !href ||
+      href.trim().toLowerCase().startsWith('javascript:') ||
+      anchor.hasAttribute('download')
+    ) {
+      return;
+    }
+
+    // Check if the link is an in-page hash / anchor link.
+    if (href.startsWith('#')) {
+      event.preventDefault();
+      const targetElement = findTargetElement(href);
+      if (targetElement) {
+        targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+      }
+      return;
+    }
+
+    // Check if the URL has the same origin/pathname but with a hash.
+    try {
+      const url = new URL(anchor.href, window.location.href);
+      if (
+        url.hash &&
+        url.origin === window.location.origin &&
+        url.pathname === window.location.pathname
+      ) {
+        event.preventDefault();
+        const targetElement = findTargetElement(url.hash);
+        if (targetElement) {
+          targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
+        return;
+      }
+    } catch (e) {
+      // Fall through if URL parsing fails.
+    }
+
+    // For all external or full navigation links, prevent iframe-level navigation
+    // (which breaks in AGSA WebView or sandboxed iframes) and ensure they open
+    // safely in a new tab/window.
+    if (anchor.target !== '_blank') {
+      event.preventDefault();
+      window.open(anchor.href, '_blank', 'noopener,noreferrer');
+    }
+  }, {capture: true});
+})();</script><script data-bard-client-injected="true">(function(){'use strict';function a(){window.parent.postMessage({type:"interaction"},"*")}window.addEventListener("click",a,{capture:!0,passive:!0});window.addEventListener("touchstart",a,{capture:!0,passive:!0});window.addEventListener("keydown",a,{capture:!0,passive:!0});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const originalConsoleLog = console.log;
+  const originalConsoleError = console.error;
+
+    /**
+   * Normalizes an error event or a promise rejection reason into a structured error object.
+   * @param {*} errorEventOrReason The error object or reason.
+   * @return {object} Structured error data { message, name, stack }.
+   */
+  function getErrorObject(errorEventOrReason) {
+    if (errorEventOrReason instanceof Error) {
+      return {
+        message: errorEventOrReason.message,
+        name: errorEventOrReason.name,
+        stack: errorEventOrReason.stack,
+      };
+    }
+    // Fallback for non-Error objects.
+    try {
+      return {
+        message: JSON.stringify(errorEventOrReason),
+        name: 'UnknownErrorType',
+        stack: null,
+      };
+    } catch (e) {
+      return {
+        message: String(errorEventOrReason),
+        name: 'UnknownErrorTypeNonStringifiable',
+        stack: null,
+      };
+    }
+  }
+
+  /**
+   * Converts an array of arguments (from log/error) into a single string.
+   * Handles Error objects specially to include their message and stack.
+   * @param {Array<*>} args - Arguments passed to console methods.
+   * @return {string} A string representation of the arguments.
+   */
+  function stringifyArgs(args) {
+    return args
+      .map((arg) => {
+        if (arg instanceof Error) {
+          const {message, stack} = arg;
+          return `Error: ${message}${stack ? ('\nStack: ' + stack) : ''}`;
+        }
+        if (typeof arg === 'object' && arg !== null) {
+          try {
+            return JSON.stringify(arg);
+          } catch (error) {
+            return '[Circular Object]';
+          }
+        } else {
+          return String(arg);
+        }
+      })
+      .join(' ');
+  }
+
+  console.log = function(...args) {
+    const logString = stringifyArgs(args);
+    window.parent.postMessage({ type: 'log', message: logString }, '*');
+    originalConsoleLog.apply(console, args);
+  };
+
+  console.error = function(...args) {
+    let errorData;
+    if (args.length > 0 && args[0] instanceof Error) {
+      const err = args[0];
+      // If the first arg is an Error, capture its details.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        ...getErrorObject(err),
+        rawArgsString: stringifyArgs(args.slice(1)),
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      // If not an Error object, treat all args as a general error message.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        message: stringifyArgs(args),
+        name: 'ConsoleLoggedError',
+        stack: null,
+        timestamp: new Date().toISOString(),
+      };
+    }
+    window.parent.postMessage(errorData, '*');
+    originalConsoleError.apply(console, args);
+  };
+
+  // Listen for global unhandled synchronous errors.
+  window.addEventListener('error', function(event) {
+    const errorDetails = event.error ? getErrorObject(event.error) : {
+      message: event.message,
+      name: 'GlobalError',
+      stack: null,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    };
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'global',
+      ...errorDetails,
+      message: errorDetails.message || event.message,
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+  // Listen for unhandled promise rejections (asynchronous errors).
+  window.addEventListener('unhandledrejection', function(event) {
+    const errorDetails = getErrorObject(event.reason);
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'unhandledrejection',
+      ...errorDetails,
+      message: errorDetails.message || 'Unhandled Promise Rejection',
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+})();</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aegis-07 // Character Rig &amp; Movement Sandbox</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;600;700&amp;display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #090d16;
+            color: #e2e8f0;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .font-mono-code {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+        /* Custom scrollbar for deployment modal */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        .keycap {
+            transition: all 0.08s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 3px 0 #1e293b;
+        }
+        .keycap.active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #0ea5e9;
+            background-color: #0284c7;
+            border-color: #38bdf8;
+            color: #ffffff;
+        }
+    </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.pointer-events-auto{pointer-events:auto}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.inset-0{inset:0px}.inset-x-4{left:1rem;right:1rem}.bottom-4{bottom:1rem}.left-1\/2{left:50%}.left-4{left:1rem}.right-2{right:0.5rem}.top-2{top:0.5rem}.top-4{top:1rem}.z-20{z-index:20}.z-50{z-index:50}.mb-1{margin-bottom:0.25rem}.mb-2\.5{margin-bottom:0.625rem}.ml-1{margin-left:0.25rem}.ml-1\.5{margin-left:0.375rem}.mt-0\.5{margin-top:0.125rem}.mt-1{margin-top:0.25rem}.mt-2{margin-top:0.5rem}.mt-2\.5{margin-top:0.625rem}.flex{display:flex}.grid{display:grid}.hidden{display:none}.h-12{height:3rem}.h-14{height:3.5rem}.h-2{height:0.5rem}.h-2\.5{height:0.625rem}.h-32{height:8rem}.h-4{height:1rem}.h-5{height:1.25rem}.h-6{height:1.5rem}.h-8{height:2rem}.h-9{height:2.25rem}.h-full{height:100%}.h-screen{height:100vh}.max-h-\[88vh\]{max-height:88vh}.w-14{width:3.5rem}.w-2{width:0.5rem}.w-2\.5{width:0.625rem}.w-32{width:8rem}.w-4{width:1rem}.w-5{width:1.25rem}.w-6{width:1.5rem}.w-60{width:15rem}.w-8{width:2rem}.w-9{width:2.25rem}.w-full{width:100%}.w-screen{width:100vw}.max-w-2xl{max-width:42rem}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.-translate-x-1\/2{--tw-translate-x:-50%;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes pulse{50%{opacity:.5}}.animate-pulse{animation:pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite}.cursor-pointer{cursor:pointer}.grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-end{align-items:flex-end}.items-center{align-items:center}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1\.5{gap:0.375rem}.gap-2{gap:0.5rem}.gap-2\.5{gap:0.625rem}.gap-3{gap:0.75rem}.gap-3\.5{gap:0.875rem}.gap-4{gap:1rem}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.space-y-4 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.space-y-5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.25rem * var(--tw-space-y-reverse))}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.rounded{border-radius:0.25rem}.rounded-2xl{border-radius:1rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-b{border-bottom-width:1px}.border-t{border-top-width:1px}.border-cyan-400\/50{border-color:rgb(34 211 238 / 0.5)}.border-cyan-500\/20{border-color:rgb(6 182 212 / 0.2)}.border-cyan-500\/30{border-color:rgb(6 182 212 / 0.3)}.border-emerald-500\/20{border-color:rgb(16 185 129 / 0.2)}.border-emerald-500\/40{border-color:rgb(16 185 129 / 0.4)}.border-indigo-400\/50{border-color:rgb(129 140 248 / 0.5)}.border-rose-400\/50{border-color:rgb(251 113 133 / 0.5)}.border-slate-700{--tw-border-opacity:1;border-color:rgb(51 65 85 / var(--tw-border-opacity, 1))}.border-slate-800{--tw-border-opacity:1;border-color:rgb(30 41 59 / var(--tw-border-opacity, 1))}.border-slate-800\/90{border-color:rgb(30 41 59 / 0.9)}.bg-amber-400{--tw-bg-opacity:1;background-color:rgb(251 191 36 / var(--tw-bg-opacity, 1))}.bg-cyan-500\/10{background-color:rgb(6 182 212 / 0.1)}.bg-cyan-500\/20{background-color:rgb(6 182 212 / 0.2)}.bg-cyan-600{--tw-bg-opacity:1;background-color:rgb(8 145 178 / var(--tw-bg-opacity, 1))}.bg-cyan-600\/85{background-color:rgb(8 145 178 / 0.85)}.bg-emerald-400{--tw-bg-opacity:1;background-color:rgb(52 211 153 / var(--tw-bg-opacity, 1))}.bg-emerald-500\/10{background-color:rgb(16 185 129 / 0.1)}.bg-emerald-950\/30{background-color:rgb(2 44 34 / 0.3)}.bg-indigo-600\/80{background-color:rgb(79 70 229 / 0.8)}.bg-rose-600\/80{background-color:rgb(225 29 72 / 0.8)}.bg-slate-800{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.bg-slate-800\/80{background-color:rgb(30 41 59 / 0.8)}.bg-slate-900{--tw-bg-opacity:1;background-color:rgb(15 23 42 / var(--tw-bg-opacity, 1))}.bg-slate-900\/50{background-color:rgb(15 23 42 / 0.5)}.bg-slate-900\/85{background-color:rgb(15 23 42 / 0.85)}.bg-slate-900\/90{background-color:rgb(15 23 42 / 0.9)}.bg-slate-900\/95{background-color:rgb(15 23 42 / 0.95)}.bg-slate-950{--tw-bg-opacity:1;background-color:rgb(2 6 23 / var(--tw-bg-opacity, 1))}.bg-slate-950\/60{background-color:rgb(2 6 23 / 0.6)}.bg-slate-950\/80{background-color:rgb(2 6 23 / 0.8)}.bg-gradient-to-br{background-image:linear-gradient(to bottom right, var(--tw-gradient-stops))}.bg-gradient-to-r{background-image:linear-gradient(to right, var(--tw-gradient-stops))}.from-cyan-400{--tw-gradient-from:#22d3ee var(--tw-gradient-from-position);--tw-gradient-to:rgb(34 211 238 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-emerald-500{--tw-gradient-from:#10b981 var(--tw-gradient-from-position);--tw-gradient-to:rgb(16 185 129 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.to-blue-600{--tw-gradient-to:#2563eb var(--tw-gradient-to-position)}.to-teal-600{--tw-gradient-to:#0d9488 var(--tw-gradient-to-position)}.p-1\.5{padding:0.375rem}.p-2{padding:0.5rem}.p-3{padding:0.75rem}.p-3\.5{padding:0.875rem}.p-4{padding:1rem}.p-6{padding:1.5rem}.px-1\.5{padding-left:0.375rem;padding-right:0.375rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-3\.5{padding-left:0.875rem;padding-right:0.875rem}.px-4{padding-left:1rem;padding-right:1rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-3\.5{padding-top:0.875rem;padding-bottom:0.875rem}.py-4{padding-top:1rem;padding-bottom:1rem}.pb-2{padding-bottom:0.5rem}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-\[9px\]{font-size:9px}.text-base{font-size:1rem;line-height:1.5rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-normal{font-weight:400}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.leading-relaxed{line-height:1.625}.tracking-tight{letter-spacing:-0.025em}.tracking-wider{letter-spacing:0.05em}.text-amber-400{--tw-text-opacity:1;color:rgb(251 191 36 / var(--tw-text-opacity, 1))}.text-cyan-300{--tw-text-opacity:1;color:rgb(103 232 249 / var(--tw-text-opacity, 1))}.text-cyan-400{--tw-text-opacity:1;color:rgb(34 211 238 / var(--tw-text-opacity, 1))}.text-emerald-300{--tw-text-opacity:1;color:rgb(110 231 183 / var(--tw-text-opacity, 1))}.text-emerald-400{--tw-text-opacity:1;color:rgb(52 211 153 / var(--tw-text-opacity, 1))}.text-sky-400{--tw-text-opacity:1;color:rgb(56 189 248 / var(--tw-text-opacity, 1))}.text-slate-200{--tw-text-opacity:1;color:rgb(226 232 240 / var(--tw-text-opacity, 1))}.text-slate-300{--tw-text-opacity:1;color:rgb(203 213 225 / var(--tw-text-opacity, 1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.text-slate-950{--tw-text-opacity:1;color:rgb(2 6 23 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.opacity-0{opacity:0}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgb(0 0 0 / 0.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-xl{--tw-shadow:0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-amber-400{--tw-shadow-color:#fbbf24;--tw-shadow:var(--tw-shadow-colored)}.shadow-cyan-500\/20{--tw-shadow-color:rgb(6 182 212 / 0.2);--tw-shadow:var(--tw-shadow-colored)}.shadow-emerald-500\/20{--tw-shadow-color:rgb(16 185 129 / 0.2);--tw-shadow:var(--tw-shadow-colored)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-sm{--tw-backdrop-blur:blur(4px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-opacity{transition-property:opacity;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-300{transition-duration:300ms}.hover\:bg-cyan-500:hover{--tw-bg-opacity:1;background-color:rgb(6 182 212 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-700:hover{--tw-bg-opacity:1;background-color:rgb(51 65 85 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-800:hover{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.hover\:from-emerald-400:hover{--tw-gradient-from:#34d399 var(--tw-gradient-from-position);--tw-gradient-to:rgb(52 211 153 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.hover\:to-teal-500:hover{--tw-gradient-to:#14b8a6 var(--tw-gradient-to-position)}.hover\:text-white:hover{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.active\:bg-cyan-400:active{--tw-bg-opacity:1;background-color:rgb(34 211 238 / var(--tw-bg-opacity, 1))}.active\:bg-cyan-500\/80:active{background-color:rgb(6 182 212 / 0.8)}.active\:bg-indigo-400:active{--tw-bg-opacity:1;background-color:rgb(129 140 248 / var(--tw-bg-opacity, 1))}.active\:bg-rose-400:active{--tw-bg-opacity:1;background-color:rgb(251 113 133 / var(--tw-bg-opacity, 1))}@media (min-width: 640px){.sm\:block{display:block}.sm\:inline{display:inline}.sm\:hidden{display:none}.sm\:w-64{width:16rem}.sm\:gap-3{gap:0.75rem}.sm\:px-3{padding-left:0.75rem;padding-right:0.75rem}.sm\:py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.sm\:text-base{font-size:1rem;line-height:1.5rem}.sm\:text-sm{font-size:0.875rem;line-height:1.25rem}}@media (min-width: 768px){.md\:inline{display:inline}}</style></head>
+<body class="h-screen w-screen flex flex-col relative">
+
+    <!-- Top Navigation & Status Bar -->
+    <header class="h-14 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 flex items-center justify-between z-20 shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                <svg class="w-5 h-5 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-sm sm:text-base font-bold tracking-tight text-white flex items-center gap-2">
+                    AEGIS-07 <span class="text-xs font-mono-code font-normal px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">v1.0.4 RIG</span>
+                </h1>
+                <p class="text-[11px] text-slate-400 hidden sm:block">Procedural 2.5D Character Kinematics &amp; Physics Sandbox</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 sm:gap-3">
+            <!-- Energy Orbs Counter -->
+            <div class="flex items-center gap-2 bg-slate-950/80 border border-slate-800 px-3 py-1.5 rounded-lg">
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse shadow-sm shadow-amber-400"></span>
+                <span class="text-xs text-slate-400 font-medium hidden sm:inline">ORBS:</span>
+                <span id="orb-counter" class="text-xs sm:text-sm font-mono-code font-bold text-amber-400">1 / 6</span>
+            </div>
+
+            <!-- Reset Arena Button -->
+            <button id="btn-reset" class="p-2 sm:px-3 sm:py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-medium transition flex items-center gap-1.5" title="Reset Position &amp; Orbs">
+                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                <span class="hidden md:inline">Reset</span>
+            </button>
+
+            <!-- GitHub Pages Deploy Drawer Button -->
+            <button id="btn-deploy-modal" class="px-3 py-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-semibold text-xs sm:text-sm shadow-lg shadow-emerald-500/20 transition flex items-center gap-1.5 cursor-pointer">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path>
+                </svg>
+                <span>Deploy to GitHub</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Interactive Viewport -->
+    <main class="flex-1 relative w-full h-full overflow-hidden">
+        <!-- Game Canvas -->
+        <canvas id="gameCanvas" width="948" height="772"></canvas>
+
+        <!-- Top-Left Telemetry HUD -->
+        <div class="absolute top-4 left-4 bg-slate-900/85 backdrop-blur-md border border-slate-800/90 rounded-xl p-3.5 w-60 sm:w-64 shadow-2xl pointer-events-none">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2.5">
+                <span class="text-[11px] font-mono-code uppercase tracking-wider text-slate-400 font-semibold">Telemetry // Live</span>
+                <span id="hud-fps" class="text-[11px] font-mono-code font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">60 FPS</span>
+            </div>
+            
+            <div class="space-y-2 text-xs font-mono-code">
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-400">STATE</span>
+                    <span id="hud-state" class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30">IDLE</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-400">POS (X, Y)</span>
+                    <span id="hud-pos" class="text-slate-200">690, 138</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-400">ALTITUDE (Z)</span>
+                    <span id="hud-alt" class="text-sky-400">0.0 m</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-400">VELOCITY</span>
+                    <span id="hud-vel" class="text-slate-200">0 px/s</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom-Left Live Keycap Visualizer (Desktop & Clickable) -->
+        <div class="absolute bottom-4 left-4 bg-slate-900/85 backdrop-blur-md border border-slate-800/90 rounded-xl p-3.5 shadow-2xl hidden sm:block">
+            <div class="text-[10px] font-mono-code uppercase tracking-wider text-slate-400 mb-2.5 font-semibold">Input Matrix (Click or Press)</div>
+            <div class="flex items-end gap-4">
+                <!-- WASD Cluster -->
+                <div class="flex flex-col items-center gap-1.5">
+                    <button data-key="KeyW" class="keycap w-9 h-9 rounded-lg bg-slate-800 border border-slate-700 text-xs font-mono-code font-bold text-slate-300 flex items-center justify-center">W</button>
+                    <div class="flex gap-1.5">
+                        <button data-key="KeyA" class="keycap w-9 h-9 rounded-lg bg-slate-800 border border-slate-700 text-xs font-mono-code font-bold text-slate-300 flex items-center justify-center">A</button>
+                        <button data-key="KeyS" class="keycap w-9 h-9 rounded-lg bg-slate-800 border border-slate-700 text-xs font-mono-code font-bold text-slate-300 flex items-center justify-center">S</button>
+                        <button data-key="KeyD" class="keycap w-9 h-9 rounded-lg bg-slate-800 border border-slate-700 text-xs font-mono-code font-bold text-slate-300 flex items-center justify-center">D</button>
+                    </div>
+                </div>
+
+                <!-- Action Keys -->
+                <div class="flex flex-col gap-1.5">
+                    <div class="flex gap-1.5">
+                        <button data-key="ShiftLeft" class="keycap px-3 h-9 rounded-lg bg-slate-800 border border-slate-700 text-[11px] font-mono-code font-bold text-slate-300 flex items-center justify-center">SHIFT <span class="text-[9px] text-slate-400 ml-1">DASH</span></button>
+                        <button data-key="KeyE" class="keycap px-3 h-9 rounded-lg bg-slate-800 border border-slate-700 text-[11px] font-mono-code font-bold text-slate-300 flex items-center justify-center">E <span class="text-[9px] text-slate-400 ml-1">SLASH</span></button>
+                    </div>
+                    <button data-key="Space" class="keycap w-full h-9 rounded-lg bg-slate-800 border border-slate-700 text-[11px] font-mono-code font-bold text-slate-300 flex items-center justify-center">SPACE <span class="text-[9px] text-slate-400 ml-1.5">JUMP</span></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Touch Controls (Visible on small screens) -->
+        <div class="sm:hidden absolute bottom-4 inset-x-4 flex justify-between items-end pointer-events-none">
+            <!-- Virtual D-Pad -->
+            <div class="grid grid-cols-3 gap-1.5 w-32 h-32 pointer-events-auto">
+                <div></div>
+                <button id="touch-up" class="bg-slate-800/80 active:bg-cyan-500/80 border border-slate-700 rounded-xl flex items-center justify-center text-white font-bold">▲</button>
+                <div></div>
+                <button id="touch-left" class="bg-slate-800/80 active:bg-cyan-500/80 border border-slate-700 rounded-xl flex items-center justify-center text-white font-bold">◀</button>
+                <div class="bg-slate-900/50 rounded-xl border border-slate-800"></div>
+                <button id="touch-right" class="bg-slate-800/80 active:bg-cyan-500/80 border border-slate-700 rounded-xl flex items-center justify-center text-white font-bold">▶</button>
+                <div></div>
+                <button id="touch-down" class="bg-slate-800/80 active:bg-cyan-500/80 border border-slate-700 rounded-xl flex items-center justify-center text-white font-bold">▼</button>
+                <div></div>
+            </div>
+
+            <!-- Mobile Action Buttons -->
+            <div class="flex flex-col gap-2 pointer-events-auto">
+                <div class="flex gap-2">
+                    <button id="touch-dash" class="w-14 h-14 rounded-full bg-indigo-600/80 active:bg-indigo-400 border border-indigo-400/50 text-xs font-bold text-white shadow-lg">DASH</button>
+                    <button id="touch-slash" class="w-14 h-14 rounded-full bg-rose-600/80 active:bg-rose-400 border border-rose-400/50 text-xs font-bold text-white shadow-lg">SLASH</button>
+                </div>
+                <button id="touch-jump" class="w-full h-12 rounded-2xl bg-cyan-600/85 active:bg-cyan-400 border border-cyan-400/50 text-xs font-bold text-white shadow-lg">JUMP</button>
+            </div>
+        </div>
+
+        <!-- Toast Notification Banner -->
+        <div id="toast-banner" class="fixed top-18 left-1/2 -translate-x-1/2 bg-slate-900/95 border border-emerald-500/40 text-emerald-300 px-4 py-2 rounded-full text-xs font-medium shadow-xl pointer-events-none transition-opacity duration-300 z-50 flex items-center gap-2 opacity-0">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <span id="toast-text">Full index.html source copied to clipboard!</span>
+        </div>
+    </main>
+
+    <!-- GitHub Pages Deployment Guide Modal / Drawer -->
+    <div id="deploy-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 items-center justify-center p-4 flex">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full max-h-[88vh] flex flex-col shadow-2xl overflow-hidden animate-fade-in">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/50">
+                <div class="flex items-center gap-2.5">
+                    <div class="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-bold text-white">Deploy to GitHub Pages</h2>
+                        <p class="text-xs text-slate-400">Zero build steps. Self-contained single-file architecture.</p>
+                    </div>
+                </div>
+                <button id="btn-close-modal" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6 overflow-y-auto space-y-5 text-sm text-slate-300">
+                <div class="bg-emerald-950/30 border border-emerald-500/20 rounded-xl p-4">
+                    <h3 class="text-emerald-400 font-semibold text-xs uppercase tracking-wider mb-1">Why this deploys cleanly</h3>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        All character sprites, animations, physics, and particle shaders are generated procedurally via HTML5 Canvas. There are zero external image or audio URLs that could break with 404 paths on GitHub Pages.
+                    </p>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- Step 1 -->
+                    <div class="flex gap-3.5">
+                        <div class="w-6 h-6 rounded-full bg-slate-800 border border-slate-700 text-cyan-400 font-mono-code text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">1</div>
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-white">Save this file as <code class="text-cyan-400 font-mono-code bg-slate-950 px-1.5 py-0.5 rounded">index.html</code></h4>
+                            <p class="text-xs text-slate-400 mt-1">Click below to download the ready-to-deploy HTML file directly or copy the source code.</p>
+                            <div class="mt-2.5 flex flex-wrap gap-2">
+                                <button id="btn-download-html" class="px-3.5 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-medium text-xs transition flex items-center gap-1.5 shadow-md">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                    </svg>
+                                    Download index.html
+                                </button>
+                                <button id="btn-copy-source" class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium text-xs transition flex items-center gap-1.5">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                    </svg>
+                                    Copy Full Source Code
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="flex gap-3.5">
+                        <div class="w-6 h-6 rounded-full bg-slate-800 border border-slate-700 text-cyan-400 font-mono-code text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">2</div>
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-white">Create a GitHub Repository &amp; Push</h4>
+                            <p class="text-xs text-slate-400 mt-1">Create a new public repository on GitHub (e.g., <code class="text-slate-300 font-mono-code">character-sandbox</code>) and push <code class="text-slate-300 font-mono-code">index.html</code> to the <code class="text-slate-300 font-mono-code">main</code> branch:</p>
+                            <div class="mt-2 bg-slate-950 border border-slate-800 rounded-lg p-3 font-mono-code text-xs text-slate-300 relative group">
+                                <pre class="overflow-x-auto">git init
+git add index.html
+git commit -m "Deploy Aegis-07 character sandbox"
+git branch -M main
+git remote add origin https://github.com/YOUR_USERNAME/character-sandbox.git
+git push -u origin main</pre>
+                                <button id="btn-copy-git" class="absolute top-2 right-2 px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-slate-300 border border-slate-700">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="flex gap-3.5">
+                        <div class="w-6 h-6 rounded-full bg-slate-800 border border-slate-700 text-cyan-400 font-mono-code text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">3</div>
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-white">Enable GitHub Pages</h4>
+                            <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                                Open your repository on GitHub → Go to <strong class="text-slate-200">Settings</strong> → Select <strong class="text-slate-200">Pages</strong> in the left sidebar → Under <em>Build and deployment</em>, set Source to <strong class="text-slate-200">Deploy from a branch</strong>, choose <code class="text-cyan-400 font-mono-code">main</code> / <code class="text-cyan-400 font-mono-code">/(root)</code>, and click <strong class="text-slate-200">Save</strong>. Your playable demo will be live in ~30 seconds!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-6 py-3.5 border-t border-slate-800 bg-slate-950/60 flex justify-end">
+                <button id="btn-done-modal" class="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs font-medium transition">Back to Sandbox</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * AEGIS-07 // Procedural 2.5D Game Character Rig & Movement Sandbox
+         * Self-contained engine featuring:
+         * - 2.5D Isometric-style Ground Plane + Vertical Z-Axis Physics
+         * - Procedural Multi-Limb Character Rig (Torso, Visor Head, Cape/Scarf, Articulated Arms & Legs, Energy Blade)
+         * - Squash & Stretch Kinematics, Dash Afterimages, and Particle Systems
+         * - Interactive Platforms, Obstacles, and Collectible Energy Orbs
+         */
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // HUD & UI Elements
+        const hudFps = document.getElementById('hud-fps');
+        const hudState = document.getElementById('hud-state');
+        const hudPos = document.getElementById('hud-pos');
+        const hudAlt = document.getElementById('hud-alt');
+        const hudVel = document.getElementById('hud-vel');
+        const orbCounter = document.getElementById('orb-counter');
+        const toastBanner = document.getElementById('toast-banner');
+        const toastText = document.getElementById('toast-text');
+
+        // Input State Tracker
+        const keys = {
+            KeyW: false, ArrowUp: false,
+            KeyS: false, ArrowDown: false,
+            KeyA: false, ArrowLeft: false,
+            KeyD: false, ArrowRight: false,
+            ShiftLeft: false, ShiftRight: false,
+            Space: false,
+            KeyE: false, KeyJ: false
+        };
+
+        // World & Camera Configuration
+        const world = {
+            width: 1600,
+            height: 1100,
+            gravity: 1950,
+            friction: 0.84,
+            gridSize: 64
+        };
+
+        const camera = {
+            x: 0,
+            y: 0,
+            shake: 0
+        };
+
+        // Character Entity Definition
+        const player = {
+            x: 800,
+            y: 550,
+            z: 0,              // Height off the ground
+            vx: 0,
+            vy: 0,
+            vz: 0,
+            radius: 22,
+            facing: 1,         // 1 = right, -1 = left
+            lookAngle: 0,
+            speed: 340,
+            sprintMultiplier: 1.55,
+            jumpForce: 680,
+            isGrounded: true,
+            groundHeight: 0,   // Height of platform currently beneath player
+            
+            // Animation State Machine
+            state: 'IDLE',     // IDLE, WALK, RUN, JUMP, DASH, ACTION
+            animTime: 0,
+            walkCycle: 0,
+            scaleX: 1,
+            scaleY: 1,
+            tilt: 0,
+
+            // Dash Mechanics
+            dashCooldown: 0,
+            dashTimer: 0,
+            dashDirX: 0,
+            dashDirY: 0,
+            afterimages: [],
+
+            // Action / Energy Slash Mechanics
+            slashTimer: 0,
+            slashCooldown: 0,
+
+            // Procedural Scarf / Cape Trail Nodes
+            scarfNodes: []
+        };
+
+        // Initialize scarf nodes
+        function initScarf() {
+            player.scarfNodes = [];
+            for (let i = 0; i < 6; i++) {
+                player.scarfNodes.push({ x: player.x, y: player.y - 36 });
+            }
+        }
+
+        // Arena Obstacles & Elevated Platforms
+        // height > 0 means player can jump onto it; solid blocks cannot be walked through unless z >= height
+        const platforms = [
+            { x: 440, y: 340, w: 180, h: 120, elevation: 48, color: '#1e293b', topColor: '#334155', accent: '#38bdf8', label: 'DECK A-1' },
+            { x: 980, y: 340, w: 180, h: 120, elevation: 48, color: '#1e293b', topColor: '#334155', accent: '#38bdf8', label: 'DECK A-2' },
+            { x: 700, y: 210, w: 200, h: 110, elevation: 95, color: '#1e1b4b', topColor: '#312e81', accent: '#818cf8', label: 'CORE TOWER' },
+            { x: 480, y: 680, w: 160, h: 110, elevation: 36, color: '#1e293b', topColor: '#334155', accent: '#34d399', label: 'PAD B-1' },
+            { x: 960, y: 680, w: 160, h: 110, elevation: 36, color: '#1e293b', topColor: '#334155', accent: '#34d399', label: 'PAD B-2' }
+        ];
+
+        // Collectible Energy Orbs
+        let orbs = [];
+        function spawnOrbs() {
+            orbs = [
+                { x: 530, y: 400, z: 68, collected: false, bobOffset: 0 },
+                { x: 1070, y: 400, z: 68, collected: false, bobOffset: 1.2 },
+                { x: 800, y: 265, z: 115, collected: false, bobOffset: 2.4 },
+                { x: 560, y: 735, z: 56, collected: false, bobOffset: 3.6 },
+                { x: 1040, y: 735, z: 56, collected: false, bobOffset: 4.8 },
+                { x: 800, y: 780, z: 24, collected: false, bobOffset: 0.7 }
+            ];
+            updateOrbHUD();
+        }
+
+        // Ambient Dust & Action Particles
+        let particles = [];
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < 45; i++) {
+                particles.push({
+                    x: Math.random() * world.width,
+                    y: Math.random() * world.height,
+                    vx: (Math.random() - 0.5) * 18,
+                    vy: (Math.random() - 0.5) * 18 - 8,
+                    size: Math.random() * 2.2 + 0.8,
+                    alpha: Math.random() * 0.4 + 0.1,
+                    color: Math.random() > 0.3 ? '#38bdf8' : '#818cf8',
+                    life: Infinity
+                });
+            }
+        }
+
+        function spawnBurst(x, y, z, color, count = 10, speed = 140) {
+            for (let i = 0; i < count; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const spd = Math.random() * speed + 30;
+                particles.push({
+                    x: x,
+                    y: y - z,
+                    vx: Math.cos(angle) * spd,
+                    vy: Math.sin(angle) * spd - 40,
+                    size: Math.random() * 3 + 1.5,
+                    alpha: 1,
+                    color: color,
+                    life: 0.45 + Math.random() * 0.25,
+                    maxLife: 0.7
+                });
+            }
+        }
+
+        // Toast Helper
+        let toastTimeout;
+        function showToast(msg) {
+            toastText.textContent = msg;
+            toastBanner.classList.remove('opacity-0');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toastBanner.classList.add('opacity-0');
+            }, 2600);
+        }
+
+        function updateOrbHUD() {
+            const collected = orbs.filter(o => o.collected).length;
+            orbCounter.textContent = `${collected} / ${orbs.length}`;
+        }
+
+        // Resize Canvas Properly
+        function resizeCanvas() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        // Input Listeners
+        function syncKeycapUI() {
+            document.querySelectorAll('.keycap').forEach(btn => {
+                const code = btn.getAttribute('data-key');
+                const isPressed = keys[code] ||
+                    (code === 'KeyW' && keys.ArrowUp) ||
+                    (code === 'KeyS' && keys.ArrowDown) ||
+                    (code === 'KeyA' && keys.ArrowLeft) ||
+                    (code === 'KeyD' && keys.ArrowRight) ||
+                    (code === 'ShiftLeft' && keys.ShiftRight);
+                if (isPressed) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
+                e.preventDefault();
+            }
+            if (keys.hasOwnProperty(e.code)) {
+                if (!keys[e.code]) {
+                    keys[e.code] = true;
+                    handleActionTriggers(e.code);
+                }
+                syncKeycapUI();
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (keys.hasOwnProperty(e.code)) {
+                keys[e.code] = false;
+                syncKeycapUI();
+            }
+        });
+
+        function handleActionTriggers(code) {
+            // Jump
+            if (code === 'Space') {
+                triggerJump();
+            }
+            // Dash
+            if (code === 'ShiftLeft' || code === 'ShiftRight') {
+                triggerDash();
+            }
+            // Slash / Action
+            if (code === 'KeyE' || code === 'KeyJ') {
+                triggerSlash();
+            }
+        }
+
+        function triggerJump() {
+            if (player.isGrounded) {
+                player.vz = player.jumpForce;
+                player.isGrounded = false;
+                // Stretch vertically on takeoff
+                player.scaleX = 0.76;
+                player.scaleY = 1.28;
+                spawnBurst(player.x, player.y, player.z, '#38bdf8', 8, 90);
+            }
+        }
+
+        function triggerDash() {
+            if (player.dashCooldown <= 0 && player.dashTimer <= 0) {
+                let ix = (keys.KeyD || keys.ArrowRight ? 1 : 0) - (keys.KeyA || keys.ArrowLeft ? 1 : 0);
+                let iy = (keys.KeyS || keys.ArrowDown ? 1 : 0) - (keys.KeyW || keys.ArrowUp ? 1 : 0);
+                if (ix === 0 && iy === 0) {
+                    ix = player.facing;
+                } else {
+                    const len = Math.hypot(ix, iy);
+                    ix /= len;
+                    iy /= len;
+                }
+                player.dashDirX = ix;
+                player.dashDirY = iy;
+                player.dashTimer = 0.18;
+                player.dashCooldown = 0.55;
+                player.scaleX = 1.32;
+                player.scaleY = 0.75;
+                camera.shake = 5;
+                spawnBurst(player.x, player.y, player.z + 20, '#22d3ee', 12, 160);
+            }
+        }
+
+        function triggerSlash() {
+            if (player.slashCooldown <= 0) {
+                player.slashTimer = 0.24;
+                player.slashCooldown = 0.35;
+                player.scaleX = 1.18;
+                player.scaleY = 0.88;
+                camera.shake = 4;
+                spawnBurst(player.x + player.facing * 32, player.y, player.z + 28, '#f43f5e', 10, 130);
+            }
+        }
+
+        // Interactive On-Screen Keycaps (Mouse/Touch click)
+        document.querySelectorAll('.keycap').forEach(btn => {
+            const code = btn.getAttribute('data-key');
+            const press = (e) => {
+                e.preventDefault();
+                keys[code] = true;
+                handleActionTriggers(code);
+                syncKeycapUI();
+            };
+            const release = (e) => {
+                e.preventDefault();
+                keys[code] = false;
+                syncKeycapUI();
+            };
+            btn.addEventListener('mousedown', press);
+            btn.addEventListener('mouseup', release);
+            btn.addEventListener('mouseleave', release);
+            btn.addEventListener('touchstart', press);
+            btn.addEventListener('touchend', release);
+        });
+
+        // Mobile Touch Controls Binding
+        function bindTouchButton(id, keyCode, onTrigger = null) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                keys[keyCode] = true;
+                if (onTrigger) onTrigger();
+            });
+            el.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                keys[keyCode] = false;
+            });
+        }
+        bindTouchButton('touch-up', 'KeyW');
+        bindTouchButton('touch-down', 'KeyS');
+        bindTouchButton('touch-left', 'KeyA');
+        bindTouchButton('touch-right', 'KeyD');
+        bindTouchButton('touch-jump', 'Space', triggerJump);
+        bindTouchButton('touch-dash', 'ShiftLeft', triggerDash);
+        bindTouchButton('touch-slash', 'KeyE', triggerSlash);
+
+        // Physics & Movement Update Loop
+        function updatePhysics(dt) {
+            player.animTime += dt;
+            if (player.dashCooldown > 0) player.dashCooldown -= dt;
+            if (player.slashCooldown > 0) player.slashCooldown -= dt;
+            if (player.slashTimer > 0) player.slashTimer -= dt;
+
+            // Smoothly recover squash & stretch back to (1, 1)
+            player.scaleX += (1 - player.scaleX) * Math.min(1, dt * 14);
+            player.scaleY += (1 - player.scaleY) * Math.min(1, dt * 14);
+
+            // Input Vector
+            let moveX = (keys.KeyD || keys.ArrowRight ? 1 : 0) - (keys.KeyA || keys.ArrowLeft ? 1 : 0);
+            let moveY = (keys.KeyS || keys.ArrowDown ? 1 : 0) - (keys.KeyW || keys.ArrowUp ? 1 : 0);
+
+            if (moveX !== 0 || moveY !== 0) {
+                const len = Math.hypot(moveX, moveY);
+                moveX /= len;
+                moveY /= len;
+                if (moveX > 0.1) player.facing = 1;
+                if (moveX < -0.1) player.facing = -1;
+            }
+
+            const isSprinting = keys.ShiftLeft || keys.ShiftRight;
+
+            // Apply Movement or Dash Velocity
+            if (player.dashTimer > 0) {
+                player.dashTimer -= dt;
+                const dashSpeed = 980;
+                player.vx = player.dashDirX * dashSpeed;
+                player.vy = player.dashDirY * dashSpeed;
+
+                // Record Dash Afterimage
+                if (Math.random() < 0.75) {
+                    player.afterimages.push({
+                        x: player.x,
+                        y: player.y,
+                        z: player.z,
+                        facing: player.facing,
+                        alpha: 0.55
+                    });
+                }
+            } else {
+                const targetSpeed = player.speed * (isSprinting ? player.sprintMultiplier : 1);
+                const accel = player.isGrounded ? 18 : 10;
+                player.vx += (moveX * targetSpeed - player.vx) * Math.min(1, dt * accel);
+                player.vy += (moveY * targetSpeed - player.vy) * Math.min(1, dt * accel);
+            }
+
+            // Proposed Next XY Position
+            let nextX = player.x + player.vx * dt;
+            let nextY = player.y + player.vy * dt;
+
+            // Arena Boundary Clamp
+            const margin = 45;
+            nextX = Math.max(margin, Math.min(world.width - margin, nextX));
+            nextY = Math.max(margin + 30, Math.min(world.height - margin, nextY));
+
+            // Platform Collision & Elevation Resolution
+            let supportElevation = 0;
+
+            for (const plat of platforms) {
+                const pad = player.radius * 0.65;
+                const insideX = nextX + pad > plat.x && nextX - pad < plat.x + plat.w;
+                const insideY = nextY + pad > plat.y && nextY - pad < plat.y + plat.h;
+
+                if (insideX && insideY) {
+                    // If player is above or nearly at platform height, they stand on top
+                    if (player.z >= plat.elevation - 10) {
+                        supportElevation = Math.max(supportElevation, plat.elevation);
+                    } else {
+                        // Solid side collision pushback
+                        const prevInsideX = player.x + pad > plat.x && player.x - pad < plat.x + plat.w;
+                        const prevInsideY = player.y + pad > plat.y && player.y - pad < plat.y + plat.h;
+
+                        if (!prevInsideX) {
+                            nextX = player.x;
+                            player.vx = 0;
+                        }
+                        if (!prevInsideY) {
+                            nextY = player.y;
+                            player.vy = 0;
+                        }
+                    }
+                }
+            }
+
+            player.x = nextX;
+            player.y = nextY;
+            player.groundHeight = supportElevation;
+
+            // Vertical Z-Axis Gravity & Landing
+            if (player.z > player.groundHeight || player.vz > 0) {
+                player.vz -= world.gravity * dt;
+                player.z += player.vz * dt;
+                player.isGrounded = false;
+
+                if (player.z <= player.groundHeight) {
+                    player.z = player.groundHeight;
+                    // Impact squash proportional to landing speed
+                    const impact = Math.min(0.32, Math.abs(player.vz) / 2400);
+                    player.scaleX = 1 + impact;
+                    player.scaleY = 1 - impact * 0.85;
+                    if (Math.abs(player.vz) > 220) {
+                        spawnBurst(player.x, player.y, player.z, '#94a3b8', 7, 75);
+                    }
+                    player.vz = 0;
+                    player.isGrounded = true;
+                }
+            } else {
+                player.z = player.groundHeight;
+                player.isGrounded = true;
+            }
+
+            // Determine Current Animation State
+            const horizontalSpeed = Math.hypot(player.vx, player.vy);
+            if (player.slashTimer > 0) {
+                player.state = 'ACTION';
+            } else if (player.dashTimer > 0) {
+                player.state = 'DASH';
+            } else if (!player.isGrounded) {
+                player.state = 'JUMP';
+            } else if (horizontalSpeed > 380) {
+                player.state = 'RUN';
+            } else if (horizontalSpeed > 35) {
+                player.state = 'WALK';
+            } else {
+                player.state = 'IDLE';
+            }
+
+            // Advance Walk Cycle & Lean Tilt
+            if (player.isGrounded && horizontalSpeed > 25) {
+                player.walkCycle += dt * (horizontalSpeed * 0.032);
+                // Spawn subtle footstep dust
+                if (Math.random() < (isSprinting ? 0.35 : 0.14)) {
+                    particles.push({
+                        x: player.x + (Math.random() - 0.5) * 14,
+                        y: player.y - player.z,
+                        vx: -player.vx * 0.15 + (Math.random() - 0.5) * 20,
+                        vy: -15 - Math.random() * 20,
+                        size: Math.random() * 2.5 + 1,
+                        alpha: 0.45,
+                        color: '#64748b',
+                        life: 0.35,
+                        maxLife: 0.35
+                    });
+                }
+            } else {
+                player.walkCycle = 0;
+            }
+
+            const targetTilt = (player.vx / 600) * 0.22;
+            player.tilt += (targetTilt - player.tilt) * Math.min(1, dt * 12);
+
+            // Update Scarf/Cape Physics Chain
+            const anchorX = player.x - player.facing * 8;
+            const anchorY = player.y - player.z - 42;
+            player.scarfNodes[0].x = anchorX;
+            player.scarfNodes[0].y = anchorY;
+
+            for (let i = 1; i < player.scarfNodes.length; i++) {
+                const prev = player.scarfNodes[i - 1];
+                const curr = player.scarfNodes[i];
+                const windX = -player.facing * 12 - player.vx * 0.035;
+                const windY = Math.sin(player.animTime * 6 + i) * 2.5 + 4;
+
+                curr.x += (prev.x + windX - curr.x) * Math.min(1, dt * 18);
+                curr.y += (prev.y + windY - curr.y) * Math.min(1, dt * 18);
+            }
+
+            // Update Afterimages
+            for (let i = player.afterimages.length - 1; i >= 0; i--) {
+                player.afterimages[i].alpha -= dt * 2.4;
+                if (player.afterimages[i].alpha <= 0) {
+                    player.afterimages.splice(i, 1);
+                }
+            }
+
+            // Check Orb Collection
+            orbs.forEach(orb => {
+                if (!orb.collected) {
+                    const distXY = Math.hypot(player.x - orb.x, player.y - orb.y);
+                    const distZ = Math.abs((player.z + 28) - orb.z);
+                    if (distXY < 36 && distZ < 42) {
+                        orb.collected = true;
+                        updateOrbHUD();
+                        spawnBurst(orb.x, orb.y, orb.z, '#fbbf24', 18, 170);
+                        camera.shake = 4;
+                        const remaining = orbs.filter(o => !o.collected).length;
+                        if (remaining === 0) {
+                            showToast('All Energy Orbs Collected! Press Reset to respawn.');
+                        } else {
+                            showToast(`Energy Core Acquired (${orbs.length - remaining}/${orbs.length})`);
+                        }
+                    }
+                }
+            });
+
+            // Update Particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx * dt;
+                p.y += p.vy * dt;
+                if (p.life !== Infinity) {
+                    p.life -= dt;
+                    p.alpha = Math.max(0, p.life / p.maxLife);
+                    if (p.life <= 0) particles.splice(i, 1);
+                } else {
+                    // Wrap ambient dust
+                    if (p.x < 0) p.x += world.width;
+                    if (p.x > world.width) p.x -= world.width;
+                    if (p.y < 0) p.y += world.height;
+                    if (p.y > world.height) p.y -= world.height;
+                }
+            }
+
+            // Smooth Camera Follow
+            const viewW = canvas.width / (window.devicePixelRatio || 1);
+            const viewH = canvas.height / (window.devicePixelRatio || 1);
+            const targetCamX = player.x - viewW / 2;
+            const targetCamY = (player.y - player.z * 0.4) - viewH / 2;
+
+            camera.x += (targetCamX - camera.x) * Math.min(1, dt * 8);
+            camera.y += (targetCamY - camera.y) * Math.min(1, dt * 8);
+
+            if (camera.shake > 0) {
+                camera.shake = Math.max(0, camera.shake - dt * 28);
+            }
+
+            // Update Telemetry HUD
+            hudState.textContent = player.state;
+            hudPos.textContent = `${Math.round(player.x)}, ${Math.round(player.y)}`;
+            hudAlt.textContent = `${(player.z / 24).toFixed(1)} m`;
+            hudVel.textContent = `${Math.round(horizontalSpeed)} px/s`;
+        }
+
+        // Render Scene
+        function render() {
+            const viewW = canvas.width / (window.devicePixelRatio || 1);
+            const viewH = canvas.height / (window.devicePixelRatio || 1);
+
+            ctx.clearRect(0, 0, viewW, viewH);
+
+            // Deep Space / Lab Background
+            ctx.fillStyle = '#070b14';
+            ctx.fillRect(0, 0, viewW, viewH);
+
+            ctx.save();
+            const shakeX = camera.shake > 0 ? (Math.random() - 0.5) * camera.shake : 0;
+            const shakeY = camera.shake > 0 ? (Math.random() - 0.5) * camera.shake : 0;
+            ctx.translate(-camera.x + shakeX, -camera.y + shakeY);
+
+            // 1. Arena Floor Base
+            ctx.fillStyle = '#0c1220';
+            ctx.fillRect(0, 0, world.width, world.height);
+
+            // 2. Tactical Grid Lines
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.07)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            for (let gx = 0; gx <= world.width; gx += world.gridSize) {
+                ctx.moveTo(gx, 0);
+                ctx.lineTo(gx, world.height);
+            }
+            for (let gy = 0; gy <= world.height; gy += world.gridSize) {
+                ctx.moveTo(0, gy);
+                ctx.lineTo(world.width, gy);
+            }
+            ctx.stroke();
+
+            // Major Sector Crosshairs
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.14)';
+            ctx.beginPath();
+            ctx.moveTo(world.width / 2, 0);
+            ctx.lineTo(world.width / 2, world.height);
+            ctx.moveTo(0, world.height / 2);
+            ctx.lineTo(world.width, world.height / 2);
+            ctx.stroke();
+
+            // Center Spawn Ring
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.22)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(800, 550, 75, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Arena Perimeter Wall
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 8;
+            ctx.strokeRect(20, 20, world.width - 40, world.height - 40);
+            ctx.strokeStyle = '#0ea5e9';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(24, 24, world.width - 48, world.height - 48);
+
+            // 3. Depth-Sorted Entities (Platforms, Orbs, Player)
+            const renderables = [];
+
+            platforms.forEach(p => {
+                renderables.push({ type: 'platform', sortY: p.y + p.h, data: p });
+            });
+
+            orbs.forEach(o => {
+                if (!o.collected) {
+                    renderables.push({ type: 'orb', sortY: o.y, data: o });
+                }
+            });
+
+            renderables.push({ type: 'player', sortY: player.y });
+
+            // Sort back-to-front by ground Y coordinate
+            renderables.sort((a, b) => a.sortY - b.sortY);
+
+            renderables.forEach(item => {
+                if (item.type === 'platform') drawPlatform(item.data);
+                else if (item.type === 'orb') drawOrb(item.data);
+                else if (item.type === 'player') drawPlayer();
+            });
+
+            // 4. Particles (Dust & Sparks)
+            particles.forEach(p => {
+                ctx.globalAlpha = p.alpha;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1;
+
+            ctx.restore();
+        }
+
+        function drawPlatform(p) {
+            const topY = p.y - p.elevation;
+
+            // Ground Drop Shadow
+            ctx.fillStyle = 'rgba(2, 6, 23, 0.65)';
+            ctx.fillRect(p.x + 8, p.y + 8, p.w, p.h);
+
+            // Front Extruded Wall (2.5D depth)
+            ctx.fillStyle = p.color;
+            ctx.fillRect(p.x, topY + p.h, p.w, p.elevation);
+
+            // Wall Vertical Tech Stripes
+            ctx.strokeStyle = 'rgba(148, 163, 184, 0.12)';
+            ctx.lineWidth = 1;
+            for (let sx = p.x + 20; sx < p.x + p.w; sx += 24) {
+                ctx.beginPath();
+                ctx.moveTo(sx, topY + p.h);
+                ctx.lineTo(sx, p.y + p.h);
+                ctx.stroke();
+            }
+
+            // Platform Top Deck Surface
+            ctx.fillStyle = p.topColor;
+            ctx.fillRect(p.x, topY, p.w, p.h);
+
+            // Top Deck Rim Highlight
+            ctx.strokeStyle = p.accent;
+            ctx.lineWidth = 2;
+            ctx.strokeRect(p.x + 1, topY + 1, p.w - 2, p.h - 2);
+
+            // Deck Label
+            ctx.fillStyle = 'rgba(226, 232, 240, 0.45)';
+            ctx.font = '600 10px "JetBrains Mono", monospace';
+            ctx.fillText(p.label, p.x + 10, topY + 18);
+        }
+
+        function drawOrb(orb) {
+            const bob = Math.sin(player.animTime * 4 + orb.bobOffset) * 6;
+            const drawY = orb.y - orb.z - bob;
+
+            // Ground Shadow
+            ctx.fillStyle = 'rgba(251, 191, 36, 0.18)';
+            ctx.beginPath();
+            ctx.ellipse(orb.x, orb.y, 12, 6, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Outer Energy Halo
+            const grad = ctx.createRadialGradient(orb.x, drawY, 2, orb.x, drawY, 22);
+            grad.addColorStop(0, 'rgba(251, 191, 36, 0.9)');
+            grad.addColorStop(0.5, 'rgba(245, 158, 11, 0.35)');
+            grad.addColorStop(1, 'rgba(245, 158, 11, 0)');
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(orb.x, drawY, 22, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Core Diamond
+            ctx.save();
+            ctx.translate(orb.x, drawY);
+            ctx.rotate(player.animTime * 2);
+            ctx.fillStyle = '#fef08a';
+            ctx.fillRect(-5, -5, 10, 10);
+            ctx.restore();
+        }
+
+        function drawPlayer() {
+            // 1. Dash Afterimages
+            player.afterimages.forEach(img => {
+                ctx.save();
+                ctx.translate(img.x, img.y - img.z);
+                ctx.scale(img.facing, 1);
+                ctx.globalAlpha = img.alpha * 0.5;
+                ctx.fillStyle = '#22d3ee';
+                ctx.beginPath();
+                ctx.roundRect(-14, -56, 28, 52, 10);
+                ctx.fill();
+                ctx.restore();
+            });
+            ctx.globalAlpha = 1;
+
+            // 2. Dynamic Ground Shadow (shrinks as altitude increases above groundHeight)
+            const heightAboveGround = Math.max(0, player.z - player.groundHeight);
+            const shadowScale = Math.max(0.45, 1 - heightAboveGround / 260);
+            ctx.fillStyle = 'rgba(2, 6, 23, 0.62)';
+            ctx.beginPath();
+            ctx.ellipse(
+                player.x,
+                player.y - player.groundHeight,
+                22 * shadowScale,
+                10 * shadowScale,
+                0, 0, Math.PI * 2
+            );
+            ctx.fill();
+
+            // 3. Flowing Energy Scarf / Cape (drawn behind character)
+            ctx.save();
+            ctx.strokeStyle = '#0ea5e9';
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            for (let i = 0; i < player.scarfNodes.length - 1; i++) {
+                const n1 = player.scarfNodes[i];
+                const n2 = player.scarfNodes[i + 1];
+                ctx.lineWidth = Math.max(3, 12 - i * 1.6);
+                ctx.beginPath();
+                ctx.moveTo(n1.x, n1.y);
+                ctx.lineTo(n2.x, n2.y);
+                ctx.stroke();
+            }
+            ctx.restore();
+
+            // 4. Articulated Character Rig
+            ctx.save();
+            ctx.translate(player.x, player.y - player.z);
+            ctx.rotate(player.tilt);
+            ctx.scale(player.facing * player.scaleX, player.scaleY);
+
+            // Idle Breathing & Walk Bobbing
+            const breath = Math.sin(player.animTime * 3.5) * 1.8;
+            const walkBob = player.isGrounded && player.walkCycle > 0
+                ? Math.abs(Math.sin(player.walkCycle)) * 4
+                : 0;
+            const bodyY = -walkBob + breath;
+
+            // Limb Swing Angles
+            const legSwing = player.isGrounded
+                ? Math.sin(player.walkCycle) * 0.65
+                : (player.vz > 0 ? -0.35 : 0.35);
+            const armSwing = player.isGrounded
+                ? -Math.sin(player.walkCycle) * 0.55
+                : -0.4;
+
+            // Back Arm
+            ctx.save();
+            ctx.translate(-3, -38 + bodyY);
+            ctx.rotate(-armSwing);
+            ctx.fillStyle = '#334155';
+            ctx.beginPath();
+            ctx.roundRect(-4, 0, 8, 20, 4);
+            ctx.fill();
+            ctx.restore();
+
+            // Back Leg
+            ctx.save();
+            ctx.translate(-4, -22 + bodyY * 0.5);
+            ctx.rotate(-legSwing);
+            ctx.fillStyle = '#1e293b';
+            ctx.beginPath();
+            ctx.roundRect(-5, 0, 10, 22, 4);
+            ctx.fill();
+            // Boot accent
+            ctx.fillStyle = '#0284c7';
+            ctx.fillRect(-5, 16, 11, 5);
+            ctx.restore();
+
+            // Front Leg
+            ctx.save();
+            ctx.translate(4, -22 + bodyY * 0.5);
+            ctx.rotate(legSwing);
+            ctx.fillStyle = '#475569';
+            ctx.beginPath();
+            ctx.roundRect(-5, 0, 10, 22, 4);
+            ctx.fill();
+            // Boot accent
+            ctx.fillStyle = '#38bdf8';
+            ctx.fillRect(-5, 16, 11, 5);
+            ctx.restore();
+
+            // Armored Torso
+            ctx.save();
+            ctx.translate(0, -22 + bodyY);
+            // Chestplate
+            ctx.fillStyle = '#e2e8f0';
+            ctx.beginPath();
+            ctx.roundRect(-12, -24, 24, 25, 7);
+            ctx.fill();
+            // Core Reactor Chest Light
+            ctx.fillStyle = '#06b6d4';
+            ctx.beginPath();
+            ctx.arc(4, -13, 3.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#cffafe';
+            ctx.beginPath();
+            ctx.arc(4, -13, 1.6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+
+            // Sci-Fi Helmet / Head
+            ctx.save();
+            ctx.translate(1, -48 + bodyY * 1.15);
+            // Helmet Shell
+            ctx.fillStyle = '#f8fafc';
+            ctx.beginPath();
+            ctx.roundRect(-12, -18, 25, 21, 9);
+            ctx.fill();
+            // Dark Visor Slit
+            ctx.fillStyle = '#0f172a';
+            ctx.beginPath();
+            ctx.roundRect(-2, -12, 16, 8, 3);
+            ctx.fill();
+            // Glowing Cyan Optic Strip
+            ctx.fillStyle = player.state === 'ACTION' ? '#f43f5e' : '#22d3ee';
+            ctx.beginPath();
+            ctx.roundRect(1, -10, 12, 4, 2);
+            ctx.fill();
+            // Antenna Fin
+            ctx.fillStyle = '#38bdf8';
+            ctx.beginPath();
+            ctx.moveTo(-10, -14);
+            ctx.lineTo(-16, -24);
+            ctx.lineTo(-6, -17);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+
+            // Front Arm + Energy Blade
+            ctx.save();
+            ctx.translate(3, -38 + bodyY);
+            const slashAngle = player.slashTimer > 0
+                ? -1.4 + (1 - player.slashTimer / 0.24) * 2.8
+                : armSwing;
+            ctx.rotate(slashAngle);
+
+            // Arm Gauntlet
+            ctx.fillStyle = '#cbd5e1';
+            ctx.beginPath();
+            ctx.roundRect(-4, 0, 9, 20, 4);
+            ctx.fill();
+
+            // Energy Blade Hilt & Plasma Emitter
+            ctx.fillStyle = '#1e293b';
+            ctx.fillRect(0, 16, 12, 5);
+            if (player.slashTimer > 0 || player.state === 'RUN') {
+                ctx.fillStyle = player.slashTimer > 0 ? '#fb7185' : '#38bdf8';
+                ctx.beginPath();
+                ctx.roundRect(10, 15, player.slashTimer > 0 ? 38 : 22, 6, 3);
+                ctx.fill();
+            }
+            ctx.restore();
+
+            // Energy Slash Arc Wave Effect
+            if (player.slashTimer > 0) {
+                const progress = 1 - (player.slashTimer / 0.24);
+                ctx.save();
+                ctx.translate(14, -32);
+                ctx.strokeStyle = `rgba(244, 63, 94, ${1 - progress})`;
+                ctx.lineWidth = 6 * (1 - progress * 0.5);
+                ctx.beginPath();
+                ctx.arc(0, 0, 44, -Math.PI * 0.45, Math.PI * 0.45);
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            ctx.restore();
+        }
+
+        // Main Animation Loop & FPS Counter
+        let lastTime = 0;
+        let frameCount = 0;
+        let fpsTimer = 0;
+
+        function gameLoop(timestamp) {
+            if (!lastTime) lastTime = timestamp;
+            const dt = Math.min(0.05, (timestamp - lastTime) / 1000);
+            lastTime = timestamp;
+
+            frameCount++;
+            fpsTimer += dt;
+            if (fpsTimer >= 0.5) {
+                hudFps.textContent = `${Math.round(frameCount / fpsTimer)} FPS`;
+                frameCount = 0;
+                fpsTimer = 0;
+            }
+
+            updatePhysics(dt);
+            render();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Reset Sandbox Button
+        document.getElementById('btn-reset').addEventListener('click', () => {
+            player.x = 800;
+            player.y = 550;
+            player.z = 0;
+            player.vx = 0;
+            player.vy = 0;
+            player.vz = 0;
+            initScarf();
+            spawnOrbs();
+            spawnBurst(player.x, player.y, 10, '#38bdf8', 16, 150);
+            showToast('Arena & Character Rig Reset');
+        });
+
+        // GitHub Pages Deployment Modal Controls
+        const deployModal = document.getElementById('deploy-modal');
+        const openModal = () => {
+            deployModal.classList.remove('hidden');
+            deployModal.classList.add('flex');
+        };
+        const closeModal = () => {
+            deployModal.classList.add('hidden');
+            deployModal.classList.remove('flex');
+        };
+
+        document.getElementById('btn-deploy-modal').addEventListener('click', openModal);
+        document.getElementById('btn-close-modal').addEventListener('click', closeModal);
+        document.getElementById('btn-done-modal').addEventListener('click', closeModal);
+        deployModal.addEventListener('click', (e) => {
+            if (e.target === deployModal) closeModal();
+        });
+
+        // Download Self-Contained index.html
+        document.getElementById('btn-download-html').addEventListener('click', () => {
+            const fullHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+            const blob = new Blob([fullHtml], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'index.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('Downloaded index.html ready for GitHub Pages!');
+        });
+
+        // Copy Full HTML Source via execCommand fallback
+        document.getElementById('btn-copy-source').addEventListener('click', () => {
+            const fullHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+            copyTextToClipboard(fullHtml, 'Full index.html source copied to clipboard!');
+        });
+
+        // Copy Git Commands
+        document.getElementById('btn-copy-git').addEventListener('click', () => {
+            const gitCmds = `git init\ngit add index.html\ngit commit -m "Deploy Aegis-07 character sandbox"\ngit branch -M main\ngit remote add origin https://github.com/YOUR_USERNAME/character-sandbox.git\ngit push -u origin main`;
+            copyTextToClipboard(gitCmds, 'Git deployment commands copied!');
+        });
+
+        function copyTextToClipboard(text, successMsg) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast(successMsg);
+            } catch (err) {
+                showToast('Unable to copy automatically.');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        // Initialize Engine on Window Load
+        window.onload = function () {
+            resizeCanvas();
+            initScarf();
+            spawnOrbs();
+            initParticles();
+            camera.x = player.x - (canvas.width / (window.devicePixelRatio || 1)) / 2;
+            camera.y = player.y - (canvas.height / (window.devicePixelRatio || 1)) / 2;
+            requestAnimationFrame(gameLoop);
+        };
+    </script>
+
+</body></html>
